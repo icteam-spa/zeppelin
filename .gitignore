@@ -122,3 +122,6 @@ tramp
 
 # tmp files
 /tmp/
+
+# Kerberos keytabs
+**/*.keytab
