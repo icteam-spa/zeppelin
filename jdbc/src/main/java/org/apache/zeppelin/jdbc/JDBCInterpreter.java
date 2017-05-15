@@ -359,30 +359,26 @@ public class JDBCInterpreter extends Interpreter {
                 property.getProperty("zeppelin.jdbc.auth.kerberos.proxy.enable"))) {
               connection = getConnectionFromPool(connectionUrl, user, propertyKey, properties);
             } else {
-              if (basePropretiesMap.get(propertyKey).containsKey("proxy.user.property")) {
-                connection = getConnectionFromPool(connectionUrl, user, propertyKey, properties);
-              } else {
-                UserGroupInformation ugi = null;
-                try {
-                  ugi = UserGroupInformation.createProxyUser(
-                      user, UserGroupInformation.getCurrentUser());
-                } catch (Exception e) {
-                  logger.error("Error in getCurrentUser", e);
-                  throw new InterpreterException("Error in getCurrentUser", e);
-                }
+              UserGroupInformation ugi = null;
+              try {
+                ugi = UserGroupInformation.createProxyUser(
+                    user, UserGroupInformation.getCurrentUser());
+              } catch (Exception e) {
+                logger.error("Error in getCurrentUser", e);
+                throw new InterpreterException("Error in getCurrentUser", e);
+              }
 
-                final String poolKey = propertyKey;
-                try {
-                  connection = ugi.doAs(new PrivilegedExceptionAction<Connection>() {
-                    @Override
-                    public Connection run() throws Exception {
-                      return getConnectionFromPool(connectionUrl, user, poolKey, properties);
-                    }
-                  });
-                } catch (Exception e) {
-                  logger.error("Error in doAs", e);
-                  throw new InterpreterException("Error in doAs", e);
-                }
+              final String poolKey = propertyKey;
+              try {
+                connection = ugi.doAs(new PrivilegedExceptionAction<Connection>() {
+                  @Override
+                  public Connection run() throws Exception {
+                    return getConnectionFromPool(connectionUrl, user, poolKey, properties);
+                  }
+                });
+              } catch (Exception e) {
+                logger.error("Error in doAs", e);
+                throw new InterpreterException("Error in doAs", e);
               }
             }
             break;
